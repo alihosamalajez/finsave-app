@@ -1,0 +1,66 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 🧠 نظام Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+dist/
+
+# 🌐 بيئة التطوير
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 🔧 إعدادات أنظمة التشغيل
+.DS_Store
+Thumbs.db
+
+# 🧪 اختبارات
+coverage/
+*.test.js
+*.spec.js
+
+# ⚛️ React build
+build/
+.cache/
+
+# 💻 Vite أو Parcel
+.vite/
+.parcel-cache/
+
+# 🔐 Firebase credentials أو config (لو مخزن محليًا)
+firebase-debug.log
+.firebaserc
+
+# 🗃️ ملفات Git نفسها
+*.orig
+
+# 💥 سجل الأخطاء أو Temporary files
+*.log
+*.tmp
