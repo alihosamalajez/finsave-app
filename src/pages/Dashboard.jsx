@@ -2,12 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { LightBulbIcon, CalendarIcon, CreditCardIcon, UserIcon } from '@heroicons/react/24/outline';
+import { LightBulbIcon, CalendarIcon, CreditCardIcon, UserIcon , PencilIcon , TrashIcon , CheckIcon} from '@heroicons/react/24/outline';
 import { ArrowRightIcon} from 'lucide-react';
 import ExportPDFButton from '../components/ExportPDFButton';
 import DataBackup from '../components/DateBackup';
 import SmartRecommendations from '../components/smartRecommedations';
 import ExpenseCalendar from '../components/ExpenseCalender';
+import { toast } from 'sonner';
+import CategoryManager from '../components/CategoryManager';
+
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
 
@@ -21,6 +24,12 @@ const Dashboard = () => {
     setGoals(JSON.parse(localStorage.getItem('goals') || '[]'));
     setSubs(JSON.parse(localStorage.getItem('subscriptions') || '[]'));
   }, []);
+
+
+
+
+
+
 
   const total = expenses.reduce((acc, exp) => acc + Number(exp.amount), 0);
 
@@ -113,6 +122,7 @@ const Dashboard = () => {
         </Link>
       </div>
       <ExpenseCalendar/>
+      <CategoryManager/>
       <SmartRecommendations/>
       {/* <ExportPDFButton/> */}
       <DataBackup/>

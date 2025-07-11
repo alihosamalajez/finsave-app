@@ -4,18 +4,21 @@ import { toast } from "sonner";
 export default function Subscriptions({ onUpdateExpenses }) {
   const [subscriptions, setSubscriptions] = useState([]);
   const [form, setForm] = useState({
-    name: "",
+    title: "",
     amount: "",
     category: "",
     frequency: "monthly",
     startDate: "",
   });
+  const [categories, setCategories] = useState([]);
 
   // ✅ تحميل الاشتراكات وتفعيل التكرار الذكي
   useEffect(() => {
     const existingSubs = JSON.parse(localStorage.getItem("subscriptions") || "[]");
     const lastAddedMap = JSON.parse(localStorage.getItem("subscriptionLog") || "{}");
     const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    const stored = JSON.parse(localStorage.getItem("categories") || [])
+    setCategories(stored)
     const now = new Date();
 
     const newExpenses = [];
@@ -31,7 +34,7 @@ export default function Subscriptions({ onUpdateExpenses }) {
       if (due) {
         newExpenses.push({
           id: Date.now() + index,
-          name: sub.name,
+          title: sub.title,
           amount: Number(sub.amount),
           category: sub.category,
           date: now.toISOString().split("T")[0],
@@ -58,7 +61,7 @@ export default function Subscriptions({ onUpdateExpenses }) {
     const updated = [...subscriptions, form];
     localStorage.setItem("subscriptions", JSON.stringify(updated));
     setSubscriptions(updated);
-    setForm({ name: "", amount: "", category: "", frequency: "monthly", startDate: "" });
+    setForm({ title: "", amount: "", category: "", frequency: "monthly", startDate: "" });
     toast.success("✅ تم إضافة الاشتراك بنجاح");
   };
 
@@ -78,8 +81,8 @@ export default function Subscriptions({ onUpdateExpenses }) {
         <input
           type="text"
           placeholder="اسم الاشتراك"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
           required
           className="input"
         />
@@ -98,12 +101,9 @@ export default function Subscriptions({ onUpdateExpenses }) {
           required
           className="input"
         >
-          <option value="سكن">سكن</option>
-          <option value="أكل">أكل</option>
-          <option value="مواصلات">مواصلات</option>
-          <option value="فواتير">فواتير</option>
-          <option value="ترفيه">ترفيه</option>
-          <option value="أخرى">أخرى</option>
+          {categories.map((cat, i) => (
+          <option key={i} value={cat}>{cat}</option>
+          ))}
         </select>
         
         <select
@@ -138,7 +138,7 @@ export default function Subscriptions({ onUpdateExpenses }) {
             {subscriptions.map((sub, i) => (
               <li key={i} className="border p-2 rounded flex flex-col md:flex-row md:justify-between md:items-center gap-2">
                 <div>
-                  <span>📌 {sub.name} – {sub.amount}₪</span>
+                  <span>📌 {sub.title} – {sub.amount}₪</span>
                   <span className="text-gray-500">({sub.frequency} • من {sub.startDate})</span>
                 </div>
                 <button onClick={()=> handleDelete(i)} className="text-red-500 hover:text-red-700 font-medium text-sm">

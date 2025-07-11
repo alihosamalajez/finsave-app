@@ -8,10 +8,14 @@ import Goals from "./pages/Goals";
 import SubscriptionsPage from "./pages/Subscription";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
+import Login from "./pages/Login"
+import Signup from "./pages/Signup"
 
 export default function AppRoutes(){
     return(
         <Routes>
+            <Route path="/login" element ={<Login/>}/>
+            <Route path="/signup" element ={<Signup/>}/>
             <Route path="/" element = {<Layout/>}>
                 <Route index element = {<Home/>}/>
                 <Route path="expenses" element ={<Expenses/>}/>

@@ -7,7 +7,7 @@ import { Dialog } from "@headlessui/react";
 // import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-const categories = ["سكن", "أكل", "مواصلات", "فواتير", "ترفيه", "أخرى"];
+// const categories = ["سكن", "أكل", "مواصلات", "فواتير", "ترفيه", "أخرى"];
 
 export default function Expenses() {
   const dispatch = useDispatch()
@@ -17,6 +17,7 @@ export default function Expenses() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", note: "", amount: "", category: "", date: "" });
   const [editIndex, setEditIndex] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
 
@@ -24,14 +25,14 @@ export default function Expenses() {
     if(expenses.length === 0){
       setForm({title : '' , amount : '', category : '' , date : new Date().toISOString().split('T')[0]})
     }
+    const stored = JSON.parse(localStorage.getItem("categories") || [])
+    setCategories(stored)
   } ,[expenses])
   
-  
-  // const filteredExpenses = expenses.filter((exp) => {
-  //     const matchesSearch = exp.title.toLowerCase().includes(search.toLocaleLowerCase())
-  //   const matchesCategory = filterCategory ? exp.category === filterCategory : true
-  //   return matchesSearch && matchesCategory
+  // useEffect(()=>{
   // })
+  
+ 
   const handleSubmit = (e) => { 
     e.preventDefault();
 
@@ -177,19 +178,19 @@ export default function Expenses() {
             <form onSubmit={handleSubmit} className="space-y-4 text-sm">
               <div>
                 <label className="block mb-1">الاسم</label>
-                <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full border rounded px-3 py-2" required />
+                <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full border rounded px-3 py-2"  />
               </div>
               <div>
                 <label className="block mb-1">الوصف</label>
-                <input type="text" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className="w-full border rounded px-3 py-2" required />
+                <input type="text" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className="w-full border rounded px-3 py-2"  />
               </div>
               <div>
                 <label className="block mb-1">المبلغ</label>
-                <input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full border rounded px-3 py-2" required />
+                <input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full border rounded px-3 py-2"  />
               </div>
               <div>
                 <label className="block mb-1">التصنيف</label>
-                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border rounded px-3 py-2" required>
+                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border rounded px-3 py-2" >
                   <option value="">اختر تصنيف</option>
                   {categories.map((cat, i) => (
                     <option key={i} value={cat}>{cat}</option>
