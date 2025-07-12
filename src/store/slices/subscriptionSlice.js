@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-const initialState = JSON.parse(localStorage.getItem("subscriptions") || [])
-const subscriptionsSlice = createSlice({
+const initialState = JSON.parse(localStorage.getItem("subscriptions")) || []
+const subscriptionSlice = createSlice({
     name : "subscriptions" ,
     initialState ,
     reducers : {
@@ -27,5 +27,5 @@ const subscriptionsSlice = createSlice({
     }
 })
 
-export const {addsubscriptions , editsubscriptions , deletesubscriptions , setsubscriptions} = subscriptionsSlice.actions
-export default subscriptionsSlice.reducer
+export const {addsubscriptions , editsubscriptions , deletesubscriptions , setsubscriptions} = subscriptionSlice.actions
+export default subscriptionSlice.reducer

@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
+import { useSelector , useDispatch} from "react-redux";
 import { toast } from "sonner";
+// import { addsubscriptions, editsubscriptions, deletesubscriptions } from "../store/slices/subscriptionSlice";
 
 export default function Subscriptions({ onUpdateExpenses }) {
+  const categories = useSelector((state) => state.categories)
+
   const [subscriptions, setSubscriptions] = useState([]);
+  const dispatch = useDispatch()
+  const subsc = useSelector((state)=> state)
+  console.log(subsc);
+  
   const [form, setForm] = useState({
     title: "",
     amount: "",
@@ -10,15 +18,13 @@ export default function Subscriptions({ onUpdateExpenses }) {
     frequency: "monthly",
     startDate: "",
   });
-  const [categories, setCategories] = useState([]);
 
   // ✅ تحميل الاشتراكات وتفعيل التكرار الذكي
   useEffect(() => {
     const existingSubs = JSON.parse(localStorage.getItem("subscriptions") || "[]");
     const lastAddedMap = JSON.parse(localStorage.getItem("subscriptionLog") || "{}");
     const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    const stored = JSON.parse(localStorage.getItem("categories") || [])
-    setCategories(stored)
+
     const now = new Date();
 
     const newExpenses = [];
@@ -101,6 +107,7 @@ export default function Subscriptions({ onUpdateExpenses }) {
           required
           className="input"
         >
+          <option value="">التصنيف</option>
           {categories.map((cat, i) => (
           <option key={i} value={cat}>{cat}</option>
           ))}

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-const initialState = JSON.parse(localStorage.getItem("categories") || ["طعام " , "مواصلات"])
+const initialState = JSON.parse(localStorage.getItem("categories"))  || ["طعام " , "مواصلات"]
 
 const categoriesSlice = createSlice({
     name : "categories" ,
@@ -14,9 +14,9 @@ const categoriesSlice = createSlice({
             }
         },
         editCategory : (state , action) =>{
-            const {index , newName} = action.payload
-            if(newName.trim()){
-                state[index] = newName
+            const {index , newValue} = action.payload
+            if(newValue.trim()){
+                state[index] = newValue
                 localStorage.setItem("categories" , JSON.stringify(state))
             }
         },

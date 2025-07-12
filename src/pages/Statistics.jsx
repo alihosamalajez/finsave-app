@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   BarChart,
   Bar,
@@ -27,9 +28,12 @@ export default function AdvancedStatistics() {
   const [averageMonthly, setAverageMonthly] = useState(0);
   const [averageDaily, setAverageDaily] = useState(0);
 
+  const expenses = useSelector((state) => state.expenses.data)
+  // const subscriptions = useSelector((state) => state.subscriptions)
+  // console.log(subscriptions);
+  
   useEffect(() => {
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    const subs = JSON.parse(localStorage.getItem("subscriptions") || "[]");
+    const subscriptions = JSON.parse(localStorage.getItem("subscriptions") || "[]");
 
     const monthlyTotals = {};
     const monthSet = new Set();
@@ -82,7 +86,7 @@ export default function AdvancedStatistics() {
       setTopCategory(top);
     }
 
-    setSubscriptionCount(subs.length);
+    setSubscriptionCount(subscriptions.length);
   }, []);
 
   const boxStyle = "bg-white rounded-xl shadow p-4 text-center h-full";

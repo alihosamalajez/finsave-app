@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { LightBulbIcon, CalendarIcon, CreditCardIcon, UserIcon , PencilIcon , TrashIcon , CheckIcon} from '@heroicons/react/24/outline';
 import { ArrowRightIcon} from 'lucide-react';
-import ExportPDFButton from '../components/ExportPDFButton';
 import DataBackup from '../components/DateBackup';
 import SmartRecommendations from '../components/smartRecommedations';
 import ExpenseCalendar from '../components/ExpenseCalender';
@@ -25,12 +24,6 @@ const Dashboard = () => {
     setGoals(JSON.parse(localStorage.getItem('goals') || '[]'));
     setSubs(JSON.parse(localStorage.getItem('subscriptions') || '[]'));
   }, []);
-
-
-
-
-
-
 
   const total = expenses.reduce((acc, exp) => acc + Number(exp.amount), 0);
 
@@ -57,7 +50,7 @@ const Dashboard = () => {
 
         <div className="bg-white p-5 rounded-xl shadow border">
           <h3 className="text-sm text-gray-500">آخر مصروف</h3>
-          <p className="text-sm text-gray-800">{lastExpense?.name || 'لا يوجد'}</p>
+          <p className="text-sm text-gray-800">{lastExpense?.title || 'لا يوجد'}</p>
           <p className="text-sm text-gray-600">{lastExpense?.amount ? `₪ ${lastExpense.amount}` : ''}</p>
         </div>
 
@@ -126,7 +119,6 @@ const Dashboard = () => {
       <Income/>
       <CategoryManager/>
       <SmartRecommendations/>
-      {/* <ExportPDFButton/> */}
       <DataBackup/>
     </div>
   );

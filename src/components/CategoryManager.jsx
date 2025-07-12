@@ -1,36 +1,38 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { PencilIcon, TrashIcon, CheckIcon } from "@heroicons/react/24/solid";
+import { useSelector , useDispatch } from "react-redux";
+import { addCategory, deleteCategory, editCategory } from "../store/slices/categoriesSlice";
 
 export default function CategoryManager() {
-  const [categories, setCategories] = useState([]);
+  // const [categories, setCategories] = useState([]);
+  const categories = useSelector((state) => state.categories)
+  const dispatch = useDispatch()
   const [newCat, setNewCat] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
 
-  useEffect(() => {
-    const stored = localStorage.getItem("categories");
-    setCategories(stored ? JSON.parse(stored) : ["طعام", "مواصلات"]);
-  }, []);
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("categories");
+  //   setCategories(stored ? JSON.parse(stored) : ["طعام", "مواصلات"]);
+  // }, []);
 
-  const saveToStorage = (list) => {
-    localStorage.setItem("categories", JSON.stringify(list));
-    setCategories(list);
-  };
+  // const saveToStorage = (list) => {
+  //   localStorage.setItem("categories", JSON.stringify(list));
+  //   setCategories(list);
+  // };
 
   const handleAdd = () => {
     if (!newCat.trim()) return toast.error("❌ أدخل اسم التصنيف");
     if (categories.includes(newCat)) return toast.error("⚠️ التصنيف موجود مسبقًا");
 
-    const updated = [...categories, newCat];
-    saveToStorage(updated);
+    dispatch(addCategory(newCat))
     setNewCat("");
     toast.success("✅ تم إضافة التصنيف");
   };
 
   const handleDelete = (index) => {
-    const updated = categories.filter((_, i) => i !== index);
-    saveToStorage(updated);
+    dispatch(deleteCategory(index))
     toast.success("🗑️ تم الحذف");
   };
 
@@ -41,9 +43,7 @@ export default function CategoryManager() {
 
   const confirmEdit = () => {
     if (!editValue.trim()) return;
-    const updated = [...categories];
-    updated[editIndex] = editValue;
-    saveToStorage(updated);
+    dispatch(editCategory({index : editIndex , newValue : editValue}))
     setEditIndex(null);
     toast.success("✏️ تم التعديل");
   };

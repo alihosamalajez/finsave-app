@@ -12,12 +12,12 @@ import { toast } from "sonner";
 export default function Expenses() {
   const dispatch = useDispatch()
   const expenses = useSelector((state) => state.expenses.data)
-  // const categories = useSelector((state) => state.categories)
-
+  const categories = useSelector((state) => state.categories)
+  
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", note: "", amount: "", category: "", date: "" });
   const [editIndex, setEditIndex] = useState(null);
-  const [categories, setCategories] = useState([]);
+  // const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
 
@@ -25,8 +25,8 @@ export default function Expenses() {
     if(expenses.length === 0){
       setForm({title : '' , amount : '', category : '' , date : new Date().toISOString().split('T')[0]})
     }
-    const stored = JSON.parse(localStorage.getItem("categories") || [])
-    setCategories(stored)
+    // const stored = JSON.parse(localStorage.getItem("categories")) || []
+    // setCategories(stored)
   } ,[expenses])
   
   // useEffect(()=>{
