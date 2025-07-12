@@ -89,7 +89,7 @@ const handleUserMessage = (e) => {
 };
  
 return ( 
-   <div className="flex-1 overflow-y-auto space-y-2 mb-4 border rounded p-2 bg-gray-50">
+   <div className="flex-1 overflow-y-auto space-y-2 mb-4 border rounded p-2 bg-white">
         <h2 className="text-lg font-bold mb-4 text-gray-800">المساعد الذكي</h2>
         <div className="flex-1 overflow-y-auto space-y-2 mb-4 border rounded p-2 bg-gray-50">
             {messages.map((msg , i)=>(

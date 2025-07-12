@@ -27,5 +27,5 @@ const goalsSlice = createSlice({
     }
 })
 
-export const {addGoal , editGoal , deleteGoal , setGoal} = categoriesSlice.actions
+export const {addGoal , editGoal , deleteGoal , setGoal} = goalsSlice.actions
 export default goalsSlice.reducer

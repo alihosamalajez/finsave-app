@@ -10,6 +10,7 @@ import SmartRecommendations from '../components/smartRecommedations';
 import ExpenseCalendar from '../components/ExpenseCalender';
 import { toast } from 'sonner';
 import CategoryManager from '../components/CategoryManager';
+import Income from '../components/Income'
 
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
@@ -122,6 +123,7 @@ const Dashboard = () => {
         </Link>
       </div>
       <ExpenseCalendar/>
+      <Income/>
       <CategoryManager/>
       <SmartRecommendations/>
       {/* <ExportPDFButton/> */}
