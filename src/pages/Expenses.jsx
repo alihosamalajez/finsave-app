@@ -7,7 +7,6 @@ import { Dialog } from "@headlessui/react";
 // import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-// const categories = ["سكن", "أكل", "مواصلات", "فواتير", "ترفيه", "أخرى"];
 
 export default function Expenses() {
   const dispatch = useDispatch()
@@ -17,20 +16,16 @@ export default function Expenses() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", note: "", amount: "", category: "", date: "" });
   const [editIndex, setEditIndex] = useState(null);
-  // const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
+  const [filterDate, setFilterDate] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
 
   useEffect(()=>{
     if(expenses.length === 0){
       setForm({title : '' , amount : '', category : '' , date : new Date().toISOString().split('T')[0]})
     }
-    // const stored = JSON.parse(localStorage.getItem("categories")) || []
-    // setCategories(stored)
   } ,[expenses])
-  
-  // useEffect(()=>{
-  // })
+
   
  
   const handleSubmit = (e) => { 
@@ -49,7 +44,7 @@ export default function Expenses() {
     };
 
     if (editIndex !== null) {
-      dispatch(updateExpense({ndex : editIndex , expense : newExpense}))
+      dispatch(updateExpense({index : editIndex , update : newExpense}))
       toast.success("✅ تم تعديل المصروف بنجاح");
     } else {
       dispatch(addExpense(newExpense))
@@ -68,7 +63,8 @@ export default function Expenses() {
         (exp.date || "").includes(search);
 
       const matchesCategory = filterCategory ? exp.category === filterCategory : true;
-      return matchesSearch && matchesCategory;
+      const matchesDate = filterDate ? exp.date === filterDate : true
+      return matchesSearch && matchesCategory && matchesDate;
     });
 
   const handleDelete = (index) => {
@@ -81,16 +77,22 @@ export default function Expenses() {
   const total = filteredExpenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10 bg-white">
+    <div className=" mx-auto px-4 py-10 bg-white">
       {/* رأس الصفحة بشكل فخم */}
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 mb-8 shadow-sm">
         <h1 className="text-3xl font-bold text-blue-700 mb-4">📊 لوحة إدارة المصاريف</h1>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-4 gap-4">
           <input
             type="text"
             placeholder="🔍 ابحث بالاسم أو التاريخ أو التصنيف"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="border border-blue-300 bg-white rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
             className="border border-blue-300 bg-white rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
           <select
@@ -128,14 +130,14 @@ export default function Expenses() {
           </thead>
           <tbody>
             {filteredExpenses.map((exp, i) => (
-              <tr key={i} className="border-t text-gray-700 hover:bg-gray-50">
+              <tr key={i} className="border-t text-gray-700 hover:bg-gray-50 font-medium">
                 <td className="py-1 px-2">{exp.title}</td>
-                <td>{exp.note}</td>
+                <td className="p-2 font-size-16">{exp.note}</td>
                 <td>{exp.amount} ₪</td>
                 <td>{exp.category}</td>
                 <td>{exp.date}</td>
                 <td>
-                  <div className="flex gap-1">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => {
                         setForm(exp);

@@ -10,6 +10,7 @@ import ExpenseCalendar from '../components/ExpenseCalender';
 import { toast } from 'sonner';
 import CategoryManager from '../components/CategoryManager';
 import Income from '../components/Income'
+import SalaryStats from '../components/SalaryStats';
 
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
@@ -50,8 +51,8 @@ const Dashboard = () => {
 
         <div className="bg-white p-5 rounded-xl shadow border">
           <h3 className="text-sm text-gray-500">آخر مصروف</h3>
-          <p className="text-sm text-gray-800">{lastExpense?.title || 'لا يوجد'}</p>
-          <p className="text-sm text-gray-600">{lastExpense?.amount ? `₪ ${lastExpense.amount}` : ''}</p>
+          <p className="text-xl font-semibold text-yellow-600">{lastExpense?.title || 'لا يوجد'} : {lastExpense?.amount ? `₪ ${lastExpense.amount}` : ''}</p>
+          {/* <p className="text-sm text-gray-600">{lastExpense?.amount ? `₪ ${lastExpense.amount}` : ''}</p> */}
         </div>
 
         <div className="bg-white p-5 rounded-xl shadow border">
@@ -59,6 +60,7 @@ const Dashboard = () => {
           <p className="text-xl font-semibold text-green-600">{todayExpenses.length} عملية</p>
         </div>
       </div>
+      <SalaryStats />
 
       <div className="grid md:grid-cols-2 gap-6 mb-10">
         <div className="bg-white rounded-xl p-4 shadow border">

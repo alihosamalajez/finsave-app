@@ -1,16 +1,15 @@
+// 📁 src/pages/Subscriptions.jsx
 import { useEffect, useState } from "react";
-import { useSelector , useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "sonner";
-// import { addsubscriptions, editsubscriptions, deletesubscriptions } from "../store/slices/subscriptionSlice";
+import { addSubscription, deleteSubscription, editSubscription,toggleSubscriptions  } from "../store/slices/subscriptionSlice";
+import { addExpense } from "../store/slices/expensesSlice";
+import { PencilIcon, TrashIcon, CheckIcon, XIcon } from "lucide-react";
+export default function Subscriptions() {
+  const categories = useSelector((state) => state.categories);
+  const subscriptions = useSelector((state) => state.subscriptions);
+  const dispatch = useDispatch();
 
-export default function Subscriptions({ onUpdateExpenses }) {
-  const categories = useSelector((state) => state.categories)
-
-  const [subscriptions, setSubscriptions] = useState([]);
-  const dispatch = useDispatch()
-  const subsc = useSelector((state)=> state)
-  console.log(subsc);
-  
   const [form, setForm] = useState({
     title: "",
     amount: "",
@@ -18,72 +17,79 @@ export default function Subscriptions({ onUpdateExpenses }) {
     frequency: "monthly",
     startDate: "",
   });
+  const [editIndex, setEditIndex] = useState(null);
+  const [editForm, setEditForm] = useState(null);
 
-  // ✅ تحميل الاشتراكات وتفعيل التكرار الذكي
   useEffect(() => {
-    const existingSubs = JSON.parse(localStorage.getItem("subscriptions") || "[]");
     const lastAddedMap = JSON.parse(localStorage.getItem("subscriptionLog") || "{}");
-    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-
     const now = new Date();
+    const updatedLog = { ...lastAddedMap };
 
-    const newExpenses = [];
+    subscriptions.forEach((sub, index) => {
+      if (!sub.active) return;
 
-    existingSubs.forEach((sub, index) => {
       const lastDate = new Date(lastAddedMap[index] || sub.startDate);
       const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
-
+      
       const due =
         (sub.frequency === "monthly" && diffDays >= 30) ||
         (sub.frequency === "weekly" && diffDays >= 7);
 
       if (due) {
-        newExpenses.push({
-          id: Date.now() + index,
-          title: sub.title,
-          amount: Number(sub.amount),
-          category: sub.category,
-          date: now.toISOString().split("T")[0],
-          note: "تمت إضافته تلقائيًا من الاشتراكات",
-        });
-        lastAddedMap[index] = now.toISOString();
-        toast.success(`✅ تم إضافة ${sub.name} تلقائيًا (${sub.amount}₪)`);
+        dispatch(
+          addExpense({
+            title: sub.title,
+            amount: Number(sub.amount),
+            category: sub.category,
+            date: now.toISOString().split("T")[0],
+            note: "تمت إضافته تلقائيًا من الاشتراك",
+          })
+        );
+
+        toast.success(`✅ تمت إضافة ${sub.title} تلقائيًا (${sub.amount}₪)`);
+        updatedLog[index] = now.toISOString();
       }
     });
 
-    if (newExpenses.length > 0) {
-      const updatedExpenses = [...expenses, ...newExpenses];
-      localStorage.setItem("expenses", JSON.stringify(updatedExpenses));
-      localStorage.setItem("subscriptionLog", JSON.stringify(lastAddedMap));
-      onUpdateExpenses(updatedExpenses); // إعلام التطبيق بالتحديث
-    }
+    localStorage.setItem("subscriptionLog", JSON.stringify(updatedLog));
+  }, [subscriptions, dispatch]);
 
-    setSubscriptions(existingSubs);
-  }, []);
-
-  // ✅ إرسال النموذج
   const handleSubmit = (e) => {
     e.preventDefault();
-    const updated = [...subscriptions, form];
-    localStorage.setItem("subscriptions", JSON.stringify(updated));
-    setSubscriptions(updated);
-    setForm({ title: "", amount: "", category: "", frequency: "monthly", startDate: "" });
+    dispatch(addSubscription({ ...form, active: true }));
     toast.success("✅ تم إضافة الاشتراك بنجاح");
+    setForm({ title: "", amount: "", category: "", frequency: "monthly", startDate: "" });
   };
 
-  const handleDelete = (index)=>{
-    const updated = [...subscriptions]
-    updated.splice(index , 1)
-    localStorage.setItem("subscriptions" , JSON.stringify(updated))
-    setSubscriptions(updated)
-    toast.success("تم حذف الاشتراك بنجاح 🗑️")
-  }
+  const handleDelete = (index) => {
+    dispatch(deleteSubscription(index));
+    toast.success("🗑️ تم حذف الاشتراك");
+  };
+
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    setEditForm(subscriptions[index]);
+  };
+
+  const confirmEdit = () => {
+    dispatch(editSubscription({ index: editIndex, subscription: editForm }));
+    toast.success("✏️ تم تعديل الاشتراك");
+    setEditIndex(null);
+    setEditForm(null);
+  };
+
+  const toggleActive = (index) => {
+    dispatch(toggleSubscriptions(index));
+  };
 
   return (
     <div className="p-6 space-y-6">
-      <h2 className="text-xl font-bold">🔄 الاشتراكات المتكررة</h2>
+      <h2 className="text-xl font-bold">🔁 الاشتراكات المتكررة</h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-white p-4 rounded-lg shadow">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-white p-4 rounded-lg shadow"
+      >
         <input
           type="text"
           placeholder="اسم الاشتراك"
@@ -101,7 +107,6 @@ export default function Subscriptions({ onUpdateExpenses }) {
           className="input"
         />
         <select
-          placeholder="التصنيف"
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
           required
@@ -109,10 +114,9 @@ export default function Subscriptions({ onUpdateExpenses }) {
         >
           <option value="">التصنيف</option>
           {categories.map((cat, i) => (
-          <option key={i} value={cat}>{cat}</option>
+            <option key={i} value={cat}>{cat}</option>
           ))}
         </select>
-        
         <select
           value={form.frequency}
           onChange={(e) => setForm({ ...form, frequency: e.target.value })}
@@ -137,20 +141,55 @@ export default function Subscriptions({ onUpdateExpenses }) {
       </form>
 
       <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="font-semibold mb-2">📄 الاشتراكات الحالية:</h3>
+        <h3 className="font-semibold mb-2">📋 الاشتراكات الحالية:</h3>
         {subscriptions.length === 0 ? (
           <p className="text-gray-500">لا يوجد اشتراكات.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {subscriptions.map((sub, i) => (
-              <li key={i} className="border p-2 rounded flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                <div>
-                  <span>📌 {sub.title} – {sub.amount}₪</span>
-                  <span className="text-gray-500">({sub.frequency} • من {sub.startDate})</span>
-                </div>
-                <button onClick={()=> handleDelete(i)} className="text-red-500 hover:text-red-700 font-medium text-sm">
-                  حذف 
-                </button>
+              <li
+                key={i}
+                className="border p-2 rounded flex flex-col md:flex-row md:justify-between md:items-center gap-2"
+              >
+                {editIndex === i ? (
+                  <div className="flex flex-col md:flex-row gap-2 w-full">
+                    <input
+                      value={editForm.title}
+                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                      className="input"
+                    />
+                    <input
+                      value={editForm.amount}
+                      onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                      className="input"
+                    />
+                    <button onClick={confirmEdit} className="text-green-600">
+                      <CheckIcon className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => setEditIndex(null)} className="text-red-600">
+                      <XIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 w-full">
+                    <div className="flex gap-3">
+                      <span className="font-bold">📌 {sub.title} - {sub.amount}₪</span>
+                      <span className="text-gray-500"> ({sub.frequency} • من {sub.startDate})</span>
+                      {!sub.active && <span className="text-red-500 ml-2">(غير مفعل)</span>}
+                    </div>
+                    <div className="flex gap-3">
+                      <button onClick={() => handleEdit(i)} className="text-blue-500">
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => toggleActive(i)} className="text-yellow-600">
+                        {sub.active ? "إلغاء التفعيل" : "تفعيل"}
+                      </button>
+                      <button onClick={() => handleDelete(i)} className="text-red-500">
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

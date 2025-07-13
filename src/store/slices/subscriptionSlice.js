@@ -5,27 +5,33 @@ const subscriptionSlice = createSlice({
     name : "subscriptions" ,
     initialState ,
     reducers : {
-        addsubscriptions : (state , action) =>{
+        addSubscription : (state , action) =>{
             state.push(action.payload)
             localStorage.setItem("subscriptions" , JSON.stringify(state))
         },
-        editsubscriptions : (state , action) =>{
+        editSubscription : (state , action) =>{
             const {index , subscription} = action.payload
             state[index] = subscription
             localStorage.setItem("subscriptions" , JSON.stringify(state))
         },
-        deletesubscriptions : (state , action) =>{
+        deleteSubscription : (state , action) =>{
             const index = action.payload
             const newState = state.filter((_ , i)=> i !== index)
             localStorage.setItem("subscriptions" , JSON.stringify(newState))
             return newState
         },
-        setsubscriptions : (state , action) =>{
+        setSubscriptions : (state , action) =>{
             localStorage.setItem("subscriptions" , JSON.stringify(action.payload))
             return action.payload
+        },
+        toggleSubscriptions : (state , action) =>{
+            const index =  action.payload
+            if(state[index]){
+                state[index].active = !state[index].active
+            }
         },
     }
 })
 
-export const {addsubscriptions , editsubscriptions , deletesubscriptions , setsubscriptions} = subscriptionSlice.actions
+export const {addSubscription , editSubscription , deleteSubscription , setSubscriptions , toggleSubscriptions} = subscriptionSlice.actions
 export default subscriptionSlice.reducer
