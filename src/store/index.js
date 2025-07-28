@@ -4,6 +4,7 @@ import categoriesReducer from '../store/slices/categoriesSlice'
 import goalsReducer from '../store/slices/goalsSlice'
 import incomesReducer from '../store/slices/incomesSlice'
 import subscriptionsReducer from '../store/slices/subscriptionSlice'
+import authReducer from '../store/slices/authSlice'
 
 export const store = configureStore({
     reducer :{
@@ -12,5 +13,6 @@ export const store = configureStore({
         goals : goalsReducer,
         categories : categoriesReducer,
         subscriptions : subscriptionsReducer,
+        currentUser : authReducer ,
     }
 })

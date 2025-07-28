@@ -1,19 +1,40 @@
 import { useState, useEffect } from "react";
-import { PlusIcon, PencilIcon, TrashIcon  } from "@heroicons/react/24/solid";
-import { XIcon } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { DatabaseZapIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addincomesFirebase,
+  deleteincomesFirebase,
+  fetchIncomes,
+  updateincomesFirebase,
+} from "../store/slices/incomesSlice";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebase";
 
-export default function Dashboard() {
+export default function Income() {
   const [incomeModalOpen, setIncomeModalOpen] = useState(false);
-  const [incomes, setIncomes] = useState([]);
-  const [form, setForm] = useState({ name: "", amount: "", date: "", type: "ثابت" });
+  // const [incomes, setIncomes] = useState([]);
+  const [form, setForm] = useState({
+    name: "",
+    amount: "",
+    date: "",
+    type: "ثابت",
+  });
   const [editIndex, setEditIndex] = useState(null);
+  const dispatch = useDispatch();
+  const [user] = useAuthState(auth);
+  const {
+    data: incomes,
+    loading,
+    addLoading,
+  } = useSelector((state) => state.incomes);
 
-  // Load income from localStorage
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("incomes") || "[]");
-    setIncomes(stored);
-  }, []);
+    if (!loading && user) {
+      dispatch(fetchIncomes());
+    }
+  }, [user, dispatch]);
 
   // Save
   const saveIncome = () => {
@@ -25,36 +46,34 @@ export default function Dashboard() {
     const updated = [...incomes];
     if (editIndex !== null) {
       updated[editIndex] = { ...form };
+      dispatch(updateincomesFirebase({ id: editIndex, update: { ...form } }));
       toast.success("✅ تم تعديل الدخل");
     } else {
-      updated.push({ ...form });
+      dispatch(addincomesFirebase({ ...form }));
+      // updated.push({ ...form });
       toast.success("✅ تم إضافة دخل جديد");
     }
 
-    setIncomes(updated);
-    localStorage.setItem("incomes", JSON.stringify(updated));
+    // setIncomes(updated);
     setForm({ name: "", amount: "", date: "", type: "ثابت" });
     setEditIndex(null);
     setIncomeModalOpen(false);
   };
 
-  const handleEdit = (i) => {
-    setForm(incomes[i]);
-    setEditIndex(i);
+  const handleEdit = (id, index) => {
+    setForm(incomes[index]);
+    setEditIndex(id);
     setIncomeModalOpen(true);
   };
 
-  const handleDelete = (i) => {
-    const updated = [...incomes];
-    updated.splice(i, 1);
-    setIncomes(updated);
-    localStorage.setItem("incomes", JSON.stringify(updated));
+  const handleDelete = (id) => {
+    dispatch(deleteincomesFirebase(id));
     toast.success("🗑️ تم حذف الدخل");
   };
 
   return (
     <div className="p-6 bg-white rounded-xl shadow p-6 mb-8 mt-10">
-      <div className="" >
+      <div className="">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">💰 مصادر الدخل</h2>
           <button
@@ -69,44 +88,64 @@ export default function Dashboard() {
             إضافة دخل
           </button>
         </div>
-
-        {incomes.length === 0 ? (
-          <p className="text-sm text-gray-500">لا يوجد دخل بعد.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-right">
-              <thead className="bg-gray-100 text-gray-600">
-                <tr>
-                  <th className="py-2 px-3">الاسم</th>
-                  <th>المبلغ</th>
-                  <th>التاريخ</th>
-                  <th>النوع</th>
-                  <th>إجراءات</th>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-right">
+            <thead className="bg-gray-100 text-gray-600">
+              <tr>
+                <th className="py-2 px-3">الاسم</th>
+                <th>المبلغ</th>
+                <th>التاريخ</th>
+                <th>النوع</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {incomes.map((inc, i) => (
+                <tr key={i} className="border-t hover:bg-gray-50">
+                  <td className="py-1 px-3">{inc.name}</td>
+                  <td>{inc.amount} ₪</td>
+                  <td>{inc.date}</td>
+                  <td>{inc.type}</td>
+                  <td>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(incomes[i].id, i)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(incomes[i].id, i)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {incomes.map((inc, i) => (
-                  <tr key={i} className="border-t hover:bg-gray-50">
-                    <td className="py-1 px-3">{inc.name}</td>
-                    <td>{inc.amount} ₪</td>
-                    <td>{inc.date}</td>
-                    <td>{inc.type}</td>
-                    <td>
-                      <div className="flex gap-2">
-                        <button onClick={() => handleEdit(i)} className="text-blue-600 hover:text-blue-800">
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDelete(i)} className="text-red-600 hover:text-red-800">
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              ))}
+              {addLoading && (
+                <tr className="animate-pulse text-gray-300">
+                  <td className="py-2 px-2">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  </td>
+                  <td>
+                    <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  </td>
+                  <td>
+                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  </td>
+                  <td>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
+                  <td>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* ✅ Modal */}
@@ -114,13 +153,13 @@ export default function Dashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl relative">
             <button
-                onClick={() => {
+              onClick={() => {
                 setIncomeModalOpen(false);
                 setEditIndex(null); // إذا بدك ترجع الحالة لوضع الإضافة
-            }}
+              }}
               className="absolute top-3 left-3 text-gray-500 hover:text-red-500"
             >
-                <XIcon className="w-5 h-5" />
+              <XIcon className="w-5 h-5" />
             </button>
             <h3 className="text-lg font-bold mb-4">
               {editIndex !== null ? "✏️ تعديل الدخل" : "➕ إضافة دخل جديد"}

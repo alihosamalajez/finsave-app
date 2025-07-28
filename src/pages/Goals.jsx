@@ -2,8 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useDispatch, useSelector } from 'react-redux';
+import { addgoalsFirebase, deletegoalsFirebase, updategoalsFirebase } from '../store/slices/goalsSlice';
+
+
 const Goals = () => {
-  const [goals, setGoals] = useState([]);
+  const { data: goals } = useSelector((state) => state.goals);
+  console.log(goals);
+  
+  const dispatch = useDispatch()
   const [form, setForm] = useState({
     title: '',
     amount: '',
@@ -13,10 +20,6 @@ const Goals = () => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const storedGoals = JSON.parse(localStorage.getItem('goals') || '[]');
-    setGoals(storedGoals);
-  }, []);
 
   const saveGoal = () => {
     if (!form.title || !form.amount || !form.days) {
@@ -30,28 +33,28 @@ const Goals = () => {
         ...form,
         amount: Number(form.amount),
         days: Number(form.days),
-        createdAt: updatedGoals[editIndex].createdAt,
       };
+      dispatch(updategoalsFirebase({id :goals[editIndex].id , update : updatedGoals[editIndex]}))
+      
       toast.success("✅ تم تعديل الهدف بنجاح");
     } else {
       const newGoal = {
         ...form,
         amount: Number(form.amount),
         days: Number(form.days),
-        createdAt: new Date().toISOString(),
       };
-      updatedGoals.push(newGoal);
+      
+      dispatch(addgoalsFirebase(newGoal))
       toast.success("✅ تم إضافة الهدف بنجاح");
     }
 
-    setGoals(updatedGoals);
-    localStorage.setItem('goals', JSON.stringify(updatedGoals));
+    // setGoals(updatedGoals);
     setForm({ title: '', amount: '', days: '' });
     setEditIndex(null);
     setIsModalOpen(false);
   };
 
-  const handleEdit = (index) => {
+  const handleEdit = (index , _) => {
     const goal = goals[index];
     setForm({
       title: goal.title,
@@ -63,10 +66,7 @@ const Goals = () => {
   };
 
   const handleDelete = (index) => {
-    const updated = [...goals];
-    updated.splice(index, 1);
-    setGoals(updated);
-    localStorage.setItem('goals', JSON.stringify(updated));
+    dispatch(deletegoalsFirebase(index))
     toast.success("🗑️ تم حذف الهدف بنجاح");
   };
 
@@ -85,7 +85,7 @@ const Goals = () => {
             placeholder="🔍 ابحث عن هدف"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-purple-300 rounded-lg px-4 py-2 text-sm shadow-sm w-full"
+            className="border border-purple-300 rounded-lg px-4 py-2 text-lg shadow-sm w-full text-gray-700"
           />
           <button
             onClick={() => {
@@ -122,13 +122,13 @@ const Goals = () => {
                 <td>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleEdit(index)}
+                      onClick={() => handleEdit( index ,  goal.id)}
                       className="text-blue-600 hover:text-blue-800"
                     >
                       <PencilIcon className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(index)}
+                      onClick={() => handleDelete(goal.id)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <TrashIcon className="w-5 h-5" />

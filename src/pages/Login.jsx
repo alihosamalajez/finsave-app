@@ -1,19 +1,41 @@
 // 📁 src/pages/Login.jsx
 import React, { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+
 // import { login } from "../services/authService";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logIn } from "../store/slices/authSlice";
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-      navigate("/dashboard");
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        dispatch(logIn(true));
+        const user = userCredential.user;
+        console.log(user);
+
+        toast.success("✅ تم تسجيل الدخول");
+        navigate("/dashboard");
+      })
+      .catch((error) => {
+        setError(true);
+        console.log(error);
+      });
+
     // try {
     //   await login(form.email, form.password);
-    //   toast.success("✅ تم تسجيل الدخول");
     // } catch (err) {
     //   toast.error(`❌ ${err.message}`);
     // }
@@ -30,17 +52,17 @@ export default function Login() {
         <input
           type="email"
           placeholder="البريد الإلكتروني"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           // required
           className="w-full border rounded-lg p-2"
         />
 
         <input
-          type="password"
+          type="text"
           placeholder="كلمة المرور"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           // required
           className="w-full border rounded-lg p-2"
         />
@@ -51,6 +73,17 @@ export default function Login() {
         >
           دخول
         </button>
+        {error && (
+          <p className="text-center text-red-600">
+            خطا في الايميل او كلمة المرور
+          </p>
+        )}
+      <p className=" text-sm text-gray-600 text-center">
+        ليس لديك حساب ؟{" "}
+        <Link to="/register" className="text-primary hover:underline">
+          انشاء الحساب{" "}
+        </Link>
+      </p>
       </form>
     </div>
   );

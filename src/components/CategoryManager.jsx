@@ -2,51 +2,40 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { PencilIcon, TrashIcon, CheckIcon } from "@heroicons/react/24/solid";
 import { useSelector , useDispatch } from "react-redux";
-import { addCategory, deleteCategory, editCategory } from "../store/slices/categoriesSlice";
+import { addCategoryFromFB, deleteCategoryFromFB , deleteCategory} from "../store/slices/categoriesSlice";
+import { auth } from "../firebase";
 
 export default function CategoryManager() {
-  // const [categories, setCategories] = useState([]);
-  const categories = useSelector((state) => state.categories)
+    const { data: categories , loading , addLoading} = useSelector((state) => state.categories);
+
   const dispatch = useDispatch()
+  
   const [newCat, setNewCat] = useState("");
-  const [editIndex, setEditIndex] = useState(null);
-  const [editValue, setEditValue] = useState("");
 
-  // useEffect(() => {
-  //   const stored = localStorage.getItem("categories");
-  //   setCategories(stored ? JSON.parse(stored) : ["طعام", "مواصلات"]);
-  // }, []);
 
-  // const saveToStorage = (list) => {
-  //   localStorage.setItem("categories", JSON.stringify(list));
-  //   setCategories(list);
-  // };
-
+  
   const handleAdd = () => {
     if (!newCat.trim()) return toast.error("❌ أدخل اسم التصنيف");
     if (categories.includes(newCat)) return toast.error("⚠️ التصنيف موجود مسبقًا");
-
-    dispatch(addCategory(newCat))
+    dispatch(addCategoryFromFB({name : newCat , userId : auth.currentUser.uid}))
     setNewCat("");
-    toast.success("✅ تم إضافة التصنيف");
   };
+  if(addLoading){
+    toast.success("  ....جاري التحميل");
+  }
 
-  const handleDelete = (index) => {
-    dispatch(deleteCategory(index))
+
+
+  const handleDelete = (categoryId) => {
+    console.log(categoryId);
+    
+    dispatch(deleteCategoryFromFB(categoryId))
+    dispatch(deleteCategory(categoryId))
     toast.success("🗑️ تم الحذف");
   };
 
-  const handleEdit = (index) => {
-    setEditIndex(index);
-    setEditValue(categories[index]);
-  };
 
-  const confirmEdit = () => {
-    if (!editValue.trim()) return;
-    dispatch(editCategory({index : editIndex , newValue : editValue}))
-    setEditIndex(null);
-    toast.success("✏️ تم التعديل");
-  };
+ 
 
   return (
     <div className="bg-white rounded-xl shadow p-6 mb-8">
@@ -68,32 +57,18 @@ export default function CategoryManager() {
 
       <ul className="space-y-2 text-sm">
         {categories.map((cat, i) => (
-          <li key={i} className="flex justify-between items-center border px-3 py-2 rounded">
-            {editIndex === i ? (
-              <input
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                className="flex-1 border rounded px-2 py-1"
-              />
-            ) : (
-              <span>{cat}</span>
-            )}
+          <li key={i} className="flex justify-between items-center border px-3 py-2 rounded"> 
+              <span>{cat.name}</span>
             <div className="flex items-center gap-2">
-              {editIndex === i ? (
-                <button onClick={confirmEdit} className="text-green-600 hover:text-green-800">
-                  <CheckIcon className="w-5 h-5" />
-                </button>
-              ) : (
-                <button onClick={() => handleEdit(i)} className="text-blue-600 hover:text-blue-800">
-                  <PencilIcon className="w-5 h-5" />
-                </button>
-              )}
-              <button onClick={() => handleDelete(i)} className="text-red-500 hover:text-red-700">
+              <button onClick={() => handleDelete(cat.id)} className="text-red-500 hover:text-red-700">
                 <TrashIcon className="w-5 h-5" />
               </button>
             </div>
           </li>
         ))}
+        {addLoading && (
+          <li className="animate-pulse bg-gray-200 h-10 rounded w-full">{newCat}</li>
+        )}
       </ul>
     </div>
   );

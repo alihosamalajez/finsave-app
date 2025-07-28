@@ -10,10 +10,9 @@ const isThisMonth = (dateStr) => {
 };
 
 export default function SalaryStats() {
-  const salaries = useSelector((state) => state.incomes); // [{amount, date, type}]
+  const salaries = useSelector((state) => state.incomes.data); // [{amount, date, type}]
   const expenses = useSelector((state) => state.expenses.data); // [{amount, date, ...}]
 
-  console.log(salaries);
   
   // 🔢 حساب الرواتب حسب الشهر والحساب الكلي
   const totalMonthlySalary = salaries
